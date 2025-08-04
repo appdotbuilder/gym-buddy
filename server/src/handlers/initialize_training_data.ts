@@ -10,7 +10,7 @@ export interface InitialTrainingData {
 
 export async function initializeTrainingData(): Promise<InitialTrainingData> {
     try {
-        // Define training sessions data
+        // Define training sessions data with exact descriptions as specified
         const trainingSessionsData = [
             { name: 'Pull #1', type: 'pull' as const, description: 'Back and biceps focused workout' },
             { name: 'Push #1', type: 'push' as const, description: 'Chest and triceps focused workout' },

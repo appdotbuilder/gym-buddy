@@ -37,7 +37,7 @@ export const seriesSchema = z.object({
   exercise_id: z.number(),
   series_number: z.number().int().min(1).max(4),
   target_repetitions: z.number().int().positive(),
-  target_weight: z.number().positive(),
+  target_weight: z.number().nonnegative(), // Allow 0 or positive
   created_at: z.coerce.date()
 });
 

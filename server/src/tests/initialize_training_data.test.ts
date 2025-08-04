@@ -112,35 +112,36 @@ describe('initializeTrainingData', () => {
   it('should handle different exercise types with appropriate rep/weight schemes', async () => {
     const result = await initializeTrainingData();
 
-    // Find plank exercise (should have 0 weight)
-    const plankExercise = result.exercises.find(e => e.name.includes('Plank'));
-    if (plankExercise) {
-      const plankSeries = result.series.filter(s => s.exercise_id === plankExercise.id);
-      plankSeries.forEach(series => {
-        expect(series.target_weight).toBe(0);
-        expect(series.target_repetitions).toBeGreaterThan(30); // Should be in seconds
+    // All exercises should have 0 as default target weight as per specification
+    result.series.forEach(series => {
+      expect(series.target_weight).toBe(0);
+    });
+
+    // Check that repetitions are parsed correctly according to rules
+    // Find exercises with range reps like "10 - 12" - should use lower bound (10)
+    const lateralRaiseExercise = result.exercises.find(e => e.name === 'Lateral Raise');
+    if (lateralRaiseExercise) {
+      const lateralRaiseSeries = result.series.filter(s => s.exercise_id === lateralRaiseExercise.id);
+      lateralRaiseSeries.forEach(series => {
+        expect(series.target_repetitions).toBe(10); // Should be 10 (lower bound of "10 - 12")
       });
     }
 
-    // Find bodyweight exercises (should have 0 weight)
-    const bodyweightExercise = result.exercises.find(e => 
-      e.name.includes('Pull-ups') || e.name.includes('Push-ups')
-    );
-    if (bodyweightExercise) {
-      const bodyweightSeries = result.series.filter(s => s.exercise_id === bodyweightExercise.id);
-      bodyweightSeries.forEach(series => {
-        expect(series.target_weight).toBe(0);
+    // Find exercises with single number reps like "8" - should use that number
+    const rdlExercise = result.exercises.find(e => e.name === 'RDL');
+    if (rdlExercise) {
+      const rdlSeries = result.series.filter(s => s.exercise_id === rdlExercise.id);
+      rdlSeries.forEach(series => {
+        expect(series.target_repetitions).toBe(8); // Should be 8
       });
     }
 
-    // Find heavy compound exercises (should have higher weight)
-    const compoundExercise = result.exercises.find(e => 
-      e.name.includes('Deadlifts') || e.name.includes('Squats')
-    );
-    if (compoundExercise) {
-      const compoundSeries = result.series.filter(s => s.exercise_id === compoundExercise.id);
-      compoundSeries.forEach(series => {
-        expect(series.target_weight).toBeGreaterThan(50);
+    // Find exercises with sequence reps like "4/6/8" - should use first number (4)
+    const frontSquatExercise = result.exercises.find(e => e.name === 'Front Squat');
+    if (frontSquatExercise) {
+      const frontSquatSeries = result.series.filter(s => s.exercise_id === frontSquatExercise.id);
+      frontSquatSeries.forEach(series => {
+        expect(series.target_repetitions).toBe(4); // Should be 4 (first number of "4/6/8")
       });
     }
   });
@@ -151,13 +152,13 @@ describe('initializeTrainingData', () => {
     const sessionNames = result.trainingSessions.map(s => s.name);
     
     // Verify specific session names exist
-    expect(sessionNames).toContain('Pull Day A');
-    expect(sessionNames).toContain('Pull Day B');
-    expect(sessionNames).toContain('Push Day A');
-    expect(sessionNames).toContain('Push Day B');
-    expect(sessionNames).toContain('Leg Day A');
-    expect(sessionNames).toContain('Leg Day B');
-    expect(sessionNames).toContain('Full Body A');
-    expect(sessionNames).toContain('Core & Cardio');
+    expect(sessionNames).toContain('Pull #1');
+    expect(sessionNames).toContain('Pull #2');
+    expect(sessionNames).toContain('Push #1');
+    expect(sessionNames).toContain('Push #2');
+    expect(sessionNames).toContain('Legs #1');
+    expect(sessionNames).toContain('Legs #2');
+    expect(sessionNames).toContain('Arms & Weak #1');
+    expect(sessionNames).toContain('Arms & Weak #2');
   });
 });
